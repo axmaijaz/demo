@@ -1,5 +1,7 @@
 sudo apt update
 
+# Test the email notification for every build !
+
 FROM nginx
 RUN rm /etc/nginx/conf.d/default.conf
 
