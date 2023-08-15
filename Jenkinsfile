@@ -1,17 +1,11 @@
 pipeline {
     agent any
-
-    environment {
-        // DOCKER_HUB_USERNAME = credentials('docker-hub-username')
-        // DOCKER_HUB_PASSWORD = credentials('docker-hub-password')
+environment {
         DOCKER_HUB_CREDENTIALS = credentials('cred-dockerhub')
         DOCKER_IMAGE_NAME = 'pipeline-dkh-img'
     }
-
-
 stages {
-	    
-	      stage('Build Image') {
+	 stage('Build Image') {
             steps {
                 script {
                 //  dockerfile = "Dockerfile"
@@ -21,18 +15,21 @@ stages {
                 }
             }
         }
+     stage('Login') {
+	 steps {
+	      script {
+	                   // Log in to Docker Hub using the access token
+                    sh "echo Asma1910** | docker login -u asmaijaz --password-stdin "
+	       }
+	    }
+	}
 
+	      
         stage('Push to Docker Hub') {
             steps {
-                script {
-                   // Log in to Docker Hub using the access token
-                    sh "echo Asma1910** | docker login -u asmaijaz --password-stdin "
-                    // sh "docker login -u asmaijaz -p ${DOCKER_HUB_CREDENTIALS}"
-
+                  script{
                     // Push the image to Docker Hub
                     sh "docker push asmaijaz/${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}"
-
-                    
                    }
                 }
             }
