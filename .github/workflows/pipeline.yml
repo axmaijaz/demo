@@ -1,1 +1,41 @@
 
+name: Stage 1 Deployment
+
+on:
+  push:
+    branches:
+      - main
+      - master
+jobs:
+  deploy_stage1:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      # Steps to build, test, and prepare your application for deployment
+
+      - name: Manual Approval
+        id: approval
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const response = await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: 'Please approve this deployment by replying with /approve'
+            });
+
+            core.setOutput('comment_id', response.data.id);
+
+      # Wait for manual approval
+      - name: Wait for Approval
+        if: steps.approval.outputs.comment_id != ''
+        uses: technote-space/wait-for-github-action@v1
+        with:
+          comment_id: ${{ steps.approval.outputs.comment_id }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      
+      # Continue deployment steps after approval
